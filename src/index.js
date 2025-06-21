@@ -9,7 +9,8 @@ const config = {
   physics: {
     default: "arcade",
     arcade: {
-      gravity: { y: 200 },
+      debug: true,
+      gravity: { y: 300 },
     },
   },
   scene: {
@@ -19,37 +20,49 @@ const config = {
   },
 };
 
-new Phaser.Game(config);
+const VELOCITY = 200;
+const FLAPVELOCITY = 300;
+const initialBirdPosition = {
+  x: (1 / 10) * config.width,
+  y: config.height / 2,
+};
+let bird = null;
+let totalDelta = null;
 
 function preload() {
   this.load.image("sky", "assets/sky.png");
   this.load.image("bird", "assets/bird.png");
 }
 
-let bird = null;
-let totalDelta = null;
-
 function create() {
   this.add.image(config.width / 2, config.height / 2, "sky");
-  //debugger;
   bird = this.physics.add
-    .sprite((1 / 10) * config.width, config.height / 2, "bird")
+    .sprite(initialBirdPosition.x, initialBirdPosition.y, "bird")
     .setOrigin(0, 0);
-  // bird.body.gravity.y = 200;
-  // console.log(bird);
+
+  this.input.on("pointerdown", flap);
+  this.input.keyboard.on("keydown-SPACE", flap);
 }
 
-// 60fps
-// 60 times per second
 function update(time, delta) {
-  // console.log(bird.body.velocity.y);
-  // console.log(delta);
-  totalDelta += delta;
-
-  if (totalDelta < 1000) {
-    return;
+  if (bird.y + bird.height < 0) {
+    resetGame();
   }
 
-  console.log(bird.body.velocity.y);
-  totalDelta = 0;
+  if (bird.y > config.height) {
+    resetGame();
+  }
 }
+
+function resetGame() {
+  alert("You lost");
+  bird.y = initialBirdPosition.y;
+  bird.x = initialBirdPosition.x;
+  bird.body.velocity.y = 0;
+}
+
+function flap() {
+  bird.body.velocity.y = -FLAPVELOCITY;
+}
+
+new Phaser.Game(config);

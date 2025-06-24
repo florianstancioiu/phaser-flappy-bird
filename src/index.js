@@ -1,6 +1,6 @@
 import "./style.css";
 
-import Phaser from "phaser";
+import Phaser, { UP } from "phaser";
 
 const config = {
   type: Phaser.AUTO,
@@ -22,17 +22,17 @@ const config = {
 
 const VELOCITY = 200;
 const PIPES_TO_RENDER = 4;
-const PIPES_HORIZONTAL_DISTANCE = 300;
 const PIPES_VERTICAL_SPEED = -200;
 const FLAPVELOCITY = 300;
 const initialBirdPosition = {
   x: (1 / 10) * config.width,
   y: config.height / 2,
 };
-let bird = null;
-let upperPipe = null;
-let lowerPipe = null;
 const pipeVerticalDistanceRange = [150, 250];
+const pipeHorizontalDistanceRange = [300, 450];
+let pipeHorizontalDistance = 300;
+let bird = null;
+let pipes = null;
 
 function preload() {
   this.load.image("sky", "assets/sky.png");
@@ -47,29 +47,16 @@ function create() {
     .setOrigin(0, 0);
   bird.body.gravity.y = 300;
 
+  pipes = this.physics.add.group();
+
   for (let i = 0; i < PIPES_TO_RENDER; i++) {
-    let pipeVerticalDistance = Phaser.Math.Between(
-      ...pipeVerticalDistanceRange
-    );
-    let pipeVerticalPosition = Phaser.Math.Between(
-      20,
-      config.height - 20 - pipeVerticalDistance
-    );
+    const upperPipe = pipes.create(0, 0, "pipe").setOrigin(0, 1);
+    const lowerPipe = pipes.create(0, 0, "pipe").setOrigin(0, 0);
 
-    upperPipe = this.physics.add
-      .sprite(PIPES_HORIZONTAL_DISTANCE * (i + 1), pipeVerticalPosition, "pipe")
-      .setOrigin(0, 1);
-    lowerPipe = this.physics.add
-      .sprite(
-        PIPES_HORIZONTAL_DISTANCE * (i + 1),
-        upperPipe.y + pipeVerticalDistance,
-        "pipe"
-      )
-      .setOrigin(0, 0);
-
-    upperPipe.body.velocity.x = PIPES_VERTICAL_SPEED;
-    lowerPipe.body.velocity.x = PIPES_VERTICAL_SPEED;
+    placePipe(upperPipe, lowerPipe);
   }
+
+  pipes.setVelocityX(PIPES_VERTICAL_SPEED);
 
   this.input.on("pointerdown", flap);
   this.input.keyboard.on("keydown-SPACE", flap);
@@ -83,6 +70,50 @@ function update(time, delta) {
   if (bird.y > config.height) {
     resetGame();
   }
+
+  recyclePipes();
+}
+
+function placePipe(uPipe, lPipe) {
+  const rightMostX = getRightMostPipe();
+  const pipeVerticalDistance = Phaser.Math.Between(
+    ...pipeVerticalDistanceRange
+  );
+  const pipeVerticalPosition = Phaser.Math.Between(
+    20,
+    config.height - 20 - pipeVerticalDistance
+  );
+  const pipeHorizontalDistance = Phaser.Math.Between(
+    ...pipeHorizontalDistanceRange
+  );
+
+  uPipe.x = rightMostX + pipeHorizontalDistance;
+  uPipe.y = pipeVerticalPosition;
+
+  lPipe.x = uPipe.x;
+  lPipe.y = uPipe.y + pipeVerticalDistance;
+}
+
+function recyclePipes() {
+  const tempPipes = [];
+  pipes.getChildren().forEach(function (pipe) {
+    if (pipe.getBounds().right < 0) {
+      tempPipes.push(pipe);
+      if (tempPipes.length === 2) {
+        placePipe(...tempPipes);
+      }
+    }
+  });
+}
+
+function getRightMostPipe() {
+  let rightMostX = 0;
+
+  pipes.getChildren().forEach(function (pipe) {
+    rightMostX = Math.max(pipe.x, rightMostX);
+  });
+
+  return rightMostX;
 }
 
 function resetGame() {

@@ -2,6 +2,7 @@ import "./style.css";
 
 import Phaser, { UP } from "phaser";
 import PlayScene from "./scenes/PlayScene";
+import MenuScene from "./scenes/MenuScene";
 
 const WIDTH = 800;
 const HEIGHT = 600;
@@ -29,7 +30,7 @@ const config = {
       // gravity: { y: 300 },
     },
   },
-  scene: [new PlayScene(SHARED_CONFIG)],
+  scene: [MenuScene, new PlayScene(SHARED_CONFIG)],
 };
 
 new Phaser.Game(config);

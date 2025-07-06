@@ -3,6 +3,8 @@ import "./style.css";
 import Phaser, { UP } from "phaser";
 import PlayScene from "./scenes/PlayScene";
 import MenuScene from "./scenes/MenuScene";
+import PreloadScene from "./scenes/PreloadScene";
+import ScoreScene from "./scenes/ScoreScene";
 
 const WIDTH = 800;
 const HEIGHT = 600;
@@ -19,6 +21,10 @@ const SHARED_CONFIG = {
   pipesToRender: PIPES_TO_RENDER,
 };
 
+const scenes = [PreloadScene, ScoreScene, MenuScene, PlayScene];
+const createScene = (Scene) => new Scene(SHARED_CONFIG);
+const initScenes = () => scenes.map(createScene);
+
 const config = {
   type: Phaser.AUTO,
   width: SHARED_CONFIG.width,
@@ -30,7 +36,7 @@ const config = {
       // gravity: { y: 300 },
     },
   },
-  scene: [MenuScene, new PlayScene(SHARED_CONFIG)],
+  scene: initScenes(),
 };
 
 new Phaser.Game(config);

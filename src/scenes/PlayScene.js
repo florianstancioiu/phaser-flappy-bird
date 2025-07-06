@@ -1,17 +1,16 @@
-import Phaser from "phaser";
+import BaseScene from "./BaseScene";
 
 const PIPES_VERTICAL_SPEED = -200;
 const FLAPVELOCITY = 300;
 const PIPES_TO_RENDER = 4;
 
-class PlayScene extends Phaser.Scene {
+class PlayScene extends BaseScene {
   constructor(config) {
-    super("PlayScene");
+    super("PlayScene", { ...config, canGoBack: true });
 
     this.pipeVerticalDistanceRange = [150, 250];
     this.pipeHorizontalDistanceRange = [300, 450];
 
-    this.config = config;
     this.bird = null;
     this.pipes = null;
 
@@ -21,15 +20,8 @@ class PlayScene extends Phaser.Scene {
     this.scoreText = "";
   }
 
-  preload() {
-    this.load.image("sky", "assets/sky.png");
-    this.load.image("bird", "assets/bird.png");
-    this.load.image("pipe", "assets/pipe.png");
-    this.load.image("pause", "assets/pause.png");
-  }
-
   create() {
-    this.createBg();
+    super.create();
     this.createBird();
     this.createPipes();
     this.createColliders();
@@ -50,10 +42,6 @@ class PlayScene extends Phaser.Scene {
     ) {
       this.gameOver();
     }
-  }
-
-  createBg() {
-    this.add.image(0, 0, "sky").setOrigin(0, 0);
   }
 
   createBird() {
@@ -173,7 +161,7 @@ class PlayScene extends Phaser.Scene {
     this.time.addEvent({
       delay: 1000,
       callback: () => {
-        this.scene.restart();
+        this.scene.start("MenuScene");
       },
       loop: false,
     });
@@ -198,6 +186,8 @@ class PlayScene extends Phaser.Scene {
         }
       }
     });
+
+    this.children.bringToTop(this.backBtn);
   }
 
   pauseTheGame() {

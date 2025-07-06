@@ -43,7 +43,7 @@ class BaseScene extends Phaser.Scene {
       menuItem.textGO = this.add
         .text(
           menuPosition.x,
-          menuPosition.y + lastMenuPositionY,
+          menuPosition.y + lastMenuPositionY - 60,
           menuItem.text,
           this.fontOptions
         )

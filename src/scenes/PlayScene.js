@@ -18,6 +18,8 @@ class PlayScene extends BaseScene {
 
     this.score = 0;
     this.scoreText = "";
+
+    this.blockIncreaseScore = false;
   }
 
   create() {
@@ -33,6 +35,9 @@ class PlayScene extends BaseScene {
   update() {
     this.checkGameStatus();
     this.recyclePipes();
+
+    // set the back btn on top of the pipes
+    this.children.bringToTop(this.backBtn);
   }
 
   checkGameStatus() {
@@ -127,6 +132,8 @@ class PlayScene extends BaseScene {
 
     lPipe.x = uPipe.x;
     lPipe.y = uPipe.y + pipeVerticalDistance;
+
+    this.blockIncreaseScore = false;
   }
 
   getRightMostPipe() {
@@ -175,19 +182,28 @@ class PlayScene extends BaseScene {
 
   recyclePipes() {
     const tempPipes = [];
-    const that = this;
+    const allPipes = this.pipes.getChildren();
 
-    this.pipes.getChildren().forEach(function (pipe) {
+    allPipes.forEach((pipe) => {
       if (pipe.getBounds().right < 0) {
         tempPipes.push(pipe);
         if (tempPipes.length === 2) {
-          that.placePipe(...tempPipes);
-          that.increaseScore();
+          this.placePipe(...tempPipes);
         }
       }
     });
 
-    this.children.bringToTop(this.backBtn);
+    const firstPipeRightBound = Math.min(
+      ...allPipes.map((pipe) => pipe.getBounds().right)
+    );
+
+    if (
+      firstPipeRightBound < this.bird.getBounds().left &&
+      this.blockIncreaseScore === false
+    ) {
+      this.increaseScore();
+      this.blockIncreaseScore = true;
+    }
   }
 
   pauseTheGame() {

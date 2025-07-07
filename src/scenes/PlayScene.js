@@ -6,7 +6,7 @@ const PIPES_TO_RENDER = 4;
 
 class PlayScene extends BaseScene {
   constructor(config) {
-    super("PlayScene", { ...config, canGoBack: true });
+    super("PlayScene", config);
 
     this.pipeVerticalDistanceRange = [150, 250];
     this.pipeHorizontalDistanceRange = [300, 450];
@@ -15,6 +15,7 @@ class PlayScene extends BaseScene {
     this.pipes = null;
 
     this.pauseBtn = null;
+    this.isPaused = false;
 
     this.score = 0;
     this.scoreText = "";
@@ -30,6 +31,44 @@ class PlayScene extends BaseScene {
     this.createScore();
     this.createPauseBtn();
     this.handleInputs();
+    this.handleEvents();
+  }
+
+  handleEvents() {
+    if (this.pauseEvent) {
+      return;
+    }
+
+    this.pauseEvent = this.events.on("resume", () => {
+      this.initialTime = 3;
+      this.countDownText = this.add
+        .text(
+          this.screenCenter.x,
+          this.screenCenter.y,
+          `Fly in: ${this.initialTime}`,
+          this.fontOptions
+        )
+        .setOrigin(0.5, 1);
+
+      this.timedEvent = this.time.addEvent({
+        delay: 1000,
+        callback: this.countDown,
+        callbackScope: this,
+        loop: true,
+      });
+    });
+  }
+
+  countDown() {
+    this.initialTime--;
+    this.countDownText.setText(`Fly in: ${this.initialTime}`);
+
+    if (this.initialTime <= 0) {
+      this.isPaused = false;
+      this.countDownText.setText("");
+      this.physics.resume();
+      this.timedEvent.remove();
+    }
   }
 
   update() {
@@ -100,6 +139,7 @@ class PlayScene extends BaseScene {
   }
 
   createPauseBtn() {
+    this.isPaused = false;
     this.pauseBtn = this.add
       .image(this.config.width - 10, this.config.height - 10, "pause")
       .setOrigin(1)
@@ -147,6 +187,10 @@ class PlayScene extends BaseScene {
   }
 
   flap() {
+    if (this.isPaused) {
+      return;
+    }
+
     this.bird.body.velocity.y = -FLAPVELOCITY;
   }
 
@@ -207,7 +251,10 @@ class PlayScene extends BaseScene {
   }
 
   pauseTheGame() {
+    this.isPaused = true;
     this.physics.pause();
+    this.scene.pause();
+    this.scene.launch("PauseScene");
   }
 }
 

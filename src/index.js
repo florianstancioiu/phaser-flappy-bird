@@ -5,6 +5,7 @@ import PlayScene from "./scenes/PlayScene";
 import MenuScene from "./scenes/MenuScene";
 import PreloadScene from "./scenes/PreloadScene";
 import ScoreScene from "./scenes/ScoreScene";
+import PauseScene from "./scenes/PauseScene";
 
 const WIDTH = 800;
 const HEIGHT = 600;
@@ -21,7 +22,7 @@ const SHARED_CONFIG = {
   pipesToRender: PIPES_TO_RENDER,
 };
 
-const scenes = [PreloadScene, ScoreScene, MenuScene, PlayScene];
+const scenes = [PreloadScene, ScoreScene, MenuScene, PlayScene, PauseScene];
 const createScene = (Scene) => new Scene(SHARED_CONFIG);
 const initScenes = () => scenes.map(createScene);
 

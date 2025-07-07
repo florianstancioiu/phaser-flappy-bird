@@ -21,6 +21,22 @@ class PlayScene extends BaseScene {
     this.scoreText = "";
 
     this.blockIncreaseScore = false;
+
+    this.currentDifficulty = "easy";
+    this.difficulties = {
+      easy: {
+        pipeHorizontalDistanceRange: [300, 350],
+        pipeVerticalDistanceRange: [150, 200],
+      },
+      normal: {
+        pipeHorizontalDistanceRange: [280, 330],
+        pipeVerticalDistanceRange: [140, 190],
+      },
+      hard: {
+        pipeHorizontalDistanceRange: [250, 310],
+        pipeVerticalDistanceRange: [120, 170],
+      },
+    };
   }
 
   create() {
@@ -32,6 +48,18 @@ class PlayScene extends BaseScene {
     this.createPauseBtn();
     this.handleInputs();
     this.handleEvents();
+
+    this.anims.create({
+      key: "fly",
+      frames: this.anims.generateFrameNumbers("bird", {
+        start: 8,
+        end: 15,
+      }),
+      frameRate: 10,
+      repeat: -1, // repeat infinitely
+    });
+
+    this.bird.play("fly");
   }
 
   handleEvents() {
@@ -72,11 +100,19 @@ class PlayScene extends BaseScene {
   }
 
   update() {
+    this.increaseDifficulty();
     this.checkGameStatus();
     this.recyclePipes();
+  }
 
-    // set the back btn on top of the pipes
-    this.children.bringToTop(this.backBtn);
+  increaseDifficulty() {
+    if (this.score === 15) {
+      this.currentDifficulty = "normal";
+    }
+
+    if (this.score === 30) {
+      this.currentDifficulty = "hard";
+    }
   }
 
   checkGameStatus() {
@@ -91,7 +127,11 @@ class PlayScene extends BaseScene {
   createBird() {
     this.bird = this.physics.add
       .sprite(this.config.startPosition.x, this.config.startPosition.y, "bird")
-      .setOrigin(0, 0);
+      .setOrigin(0)
+      .setFlipX(true)
+      .setScale(3);
+
+    this.bird.setBodySize(this.bird.width, this.bird.height - 8);
     this.bird.body.gravity.y = 600;
   }
 
@@ -155,16 +195,18 @@ class PlayScene extends BaseScene {
   }
 
   placePipe(uPipe, lPipe) {
+    const difficulty = this.difficulties[this.currentDifficulty];
+
     const rightMostX = this.getRightMostPipe();
     const pipeVerticalDistance = Phaser.Math.Between(
-      ...this.pipeVerticalDistanceRange
+      ...difficulty.pipeVerticalDistanceRange
     );
     const pipeVerticalPosition = Phaser.Math.Between(
       20,
       this.config.height - 20 - pipeVerticalDistance
     );
     const pipeHorizontalDistance = Phaser.Math.Between(
-      ...this.pipeHorizontalDistanceRange
+      ...difficulty.pipeHorizontalDistanceRange
     );
 
     uPipe.x = rightMostX + pipeHorizontalDistance;

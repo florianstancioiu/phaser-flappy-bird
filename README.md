@@ -1,33 +1,9 @@
 # Phaser Flappy Bird Clone
 
-## Move the character from one side of the screen to the other - horizontally
+This is an implementation of the famous flappy bird game in Phaser and JavaScript.
 
-```js
-function update(time, delta) {
-  if (bird.x <= 0) {
-    bird.body.velocity.x = VELOCITY;
-  }
+I coded this while following along the "[Game Development in JS/TS - The Complete Guide (w/ Phaser 3)](https://www.udemy.com/course/game-development-in-js-the-complete-guide-w-phaser-3/)" tutorial by Filip Jerga.
 
-  if (bird.x + bird.width >= config.width) {
-    bird.body.velocity.x = -VELOCITY;
-  }
-}
-```
+If you want to learn how to implement it yourself, you can purchase the course on Udemy.
 
-## How to listen for keyboard events
-
-```js
-this.input.keyboard.on("keydown-SPACE", function () {
-  console.log("pressing space button");
-});
-```
-
-You put the listener in `create` function.
-
-## How to go up against the gravity of the bird object
-
-```js
-bird.body.velocity.y = -VELOCITY;
-```
-
-Do note the **negative** velocity value that's being set on the bird object.
+**Note:** I'm using Vite instead of Webpack and made some small adjustments here and there.

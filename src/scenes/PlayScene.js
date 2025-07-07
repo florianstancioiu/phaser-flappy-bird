@@ -248,6 +248,7 @@ class PlayScene extends BaseScene {
   gameOver() {
     this.physics.pause();
     this.bird.setTint(0xee4824);
+    this.bird.anims.pause();
 
     this.saveBestScore();
 
